@@ -24,27 +24,16 @@ def T_e(A,B,r):
             r:      interatomic distance
     '''
 
-    c_A = A[0]  # coefficents of cGTO A
-    c_B = B[0]  # coefficents of cGTO B
-    d_A = A[1]  # exponents of cGTO A
-    d_B = B[1]  # exponents of cGTO B
-
-    ke = 0.0
-
-    for i in range(3):          # hardcoded 3 for STO3G
-        for j in range(3):      # hardcoded 3 for STO3G
-
-            a = c_A[i]  # ith coefficent of gaussian A 
-            b = c_B[j]  # jth coefficent of gaussian B 
-            
-            # reduced exponent
-            red_exp = (a * b / (a+b)) 
-            
-            #
-            ke += red_exp * (3 - 2 *  r * red_exp) * (np.pi/( a + b))**(3/2) * np.exp(- r * red_exp ) * d_A[i] * d_B[j]
+    # calculate reduced exponent
+    k = lambda a,b: (a * b / (a+b)) 
     
-    return  ke
-
+    # expression for the kinetic energy
+    kinetic_energy = lambda c_A, c_B, d_A, d_B: k(c_A,c_B) * (3 - 2 *  r * k(c_A,c_B)) * (np.pi/( c_A + c_B))**(3/2) * np.exp(- r * k(c_A,c_B) ) * d_A * d_B
+    
+    # calculate the kinetic energy for all permutations (this performed better than np.meshgrid and similar to itertools.product)
+    T = [kinetic_energy(c_A,c_B,d_A,d_B) for c_A, d_A in zip(A[0],A[1]) for c_B, d_B in zip(B[0],B[1])]
+    
+    return  sum(T)
 
 def test_T_e():
 
