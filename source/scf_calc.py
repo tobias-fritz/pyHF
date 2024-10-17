@@ -20,7 +20,7 @@ def HF_SCF(r: float,
            zeta2: float, 
            thresh: float, 
            iterations: int) -> float:
-    ''' Hartree-Fock algorithm for diatomic molecules with minimal basis sets
+    ''' HartrE_elec-Fock algorithm for diatomic molecules with minimal basis sets
 
     args:
         r : float : internuclear distance
@@ -97,37 +97,32 @@ def HF_SCF(r: float,
         # Calculate Fock matrix
         F = H + G
 
-        # Calculate electronic energy EE = ½ * Σᵢⱼ Pᵢⱼ (Hᵢⱼ + Fᵢⱼ) + (Zₐ * Zᵦ) / r
-        EE = 0.5 * np.einsum('ij,ij->', P, H + F) + ZA * ZB / r
+        # Calculate electronic energy E_elec = ½ * Σᵢⱼ Pᵢⱼ (Hᵢⱼ + Fᵢⱼ) + (Zₐ * Zᵦ) / r
+        E_elec = 0.5 * np.einsum('ij,ij->', P, H + F) + ZA * ZB / r
 
         # Calculate F prime, this is the Fock matrix in the orthogonalized basis
-        FPRIME = np.dot(X.T, np.dot(F, X))
+        F_pr = np.dot(X.T, np.dot(F, X))
 
         # Diagonalize F prime for E, C prime, these are the eigenvalues and eigenvectors of the Fock matrix
-        E, Cprime = np.linalg.eigh(FPRIME)
+        E, C_pr = np.linalg.eigh(F_pr)
         
         # Transform the eigenvectors back to the original basis
-        C = np.dot(X, Cprime)
+        C = np.dot(X, C_pr)
 
         # Copy P to OLDP
-        OLDP = P.copy()
+        P_old = P.copy()
 
         # Update P with the new eigenvectors
         P = 2.0 * np.outer(C[:, 0], C[:, 0])
 
         # Calculate delta
-        delta = np.sqrt(np.mean((P - OLDP)**2))
-        result.append(EE)
+        delta = np.sqrt(np.mean((P - P_old)**2))
+        result.append(E_elec)
     
-        print('################################################')
 
         if delta < thresh:
-            print('################################################')
-            print(f'Yeah - converged SCF after {iteration} - this is a reason to celebrate')
-            print('################################################')
-            print('Final energy:', EE, 'a.u.')
-            print('################################################')
-            return EE
+            print(f'SCF converged after {iteration} iterations to {E_elec} a.u.')
+            return E_elec
         
         else:
             continue
