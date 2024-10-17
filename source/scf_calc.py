@@ -39,9 +39,9 @@ def HF_SCF(r: float,
     # STO-3G basis set
     coef = np.array((0.444635, 0.535328, 0.154329)) # the coefficients of the contracted gaussian
     alpha = np.array((0.109818, 0.405771, 2.22766)) # the exponents of the gaussian
-    A = STO3G(zeta1, coef, alpha) # the STO-3G basis set for atom A with a1, d1
-    B = STO3G(zeta2, coef, alpha) # the STO-3G basis set for atom B with a2, d2
-    N = A[0].shape[0]
+    A = STO3G(zeta1, coef, alpha) 
+    B = STO3G(zeta2, coef, alpha)
+    N = A[0].shape[0] # Number of contracted gaussians
 
     # Kinetic energy integrals
     T11 = np.sum(kinetic_integral(A[0][:, None], A[0][None, :], 0.0) * A[1][:, None] * A[1][None, :])
@@ -85,11 +85,12 @@ def HF_SCF(r: float,
     for iteration in range(iterations):
         print('iteration:', iteration)
 
-        # Initialize P, the density matrix for the first iteration
+        # Initialize the density matrix P for the first iteration
         if iteration == 0:
             P = np.zeros((2, 2))
 
-        if iteration == 0: # Initialize G, the G matrix for the first iteration
+        # Initialize the G matrix for the first iteration
+        if iteration == 0: 
             G = np.zeros((2, 2))
         else:
             G = np.einsum('kl,ijkl->ij', P, T) - 0.5 * np.einsum('kl,ilkj->ij', P, T)
@@ -103,13 +104,13 @@ def HF_SCF(r: float,
         # Calculate F prime, this is the Fock matrix in the orthogonalized basis
         F_pr = np.dot(X.T, np.dot(F, X))
 
-        # Diagonalize F prime for E, C prime, these are the eigenvalues and eigenvectors of the Fock matrix
+        # Diagonalize F' for E, C', these are the eigenvalues and eigenvectors of the Fock matrix
         E, C_pr = np.linalg.eigh(F_pr)
         
         # Transform the eigenvectors back to the original basis
         C = np.dot(X, C_pr)
 
-        # Copy P to OLDP
+        # Copy P to old_P to save it
         P_old = P.copy()
 
         # Update P with the new eigenvectors
@@ -123,7 +124,6 @@ def HF_SCF(r: float,
         if delta < thresh:
             print(f'SCF converged after {iteration} iterations to {E_elec} a.u.')
             return E_elec
-        
         else:
             continue
 
