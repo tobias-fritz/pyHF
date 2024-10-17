@@ -13,7 +13,9 @@ import numpy as np
 
 #=============================================================================================== 
 
-def STO3G(zeta, c, alpha, r):
+def STO3G(zeta: float, 
+          c: tuple, 
+          alpha: tuple) -> tuple:
     ''' Slater type molecular orbital, a contraction (sum) of three gaussians (= STO-3G)
 
         STO = N*r^(n-1) * exp(-ζr) * Y_lm,
@@ -24,11 +26,10 @@ def STO3G(zeta, c, alpha, r):
 
         with the molecular orbital coefficient c and the exponent alpha * ζ^2 .
 
-        param:
+        args:
             zeta    :      zeta value
             c       :      coefficients of the cointracted gaussian
             alpha   :      exponent of the gaussian 
-            r       :      interatomic distance 
 
         returns the contracted gaussian as a tupel of the  orbital coeeficients 
         and exponents.
