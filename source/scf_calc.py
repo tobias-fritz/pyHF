@@ -20,7 +20,7 @@ def HF_SCF(r: float,
            zeta2: float, 
            thresh: float, 
            iterations: int) -> float:
-    ''' HartrE_elec-Fock algorithm for diatomic molecules with minimal basis sets
+    ''' Hartree-Fock algorithm for diatomic molecules with cGTO basis set
 
     args:
         r : float : internuclear distance
