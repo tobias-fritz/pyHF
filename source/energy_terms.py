@@ -88,6 +88,49 @@ def two_electron_integral(a: float, b: float, c: float, d: float, r1: float, r2:
            F0(((a + b) * (c + d) * r3 / (a + b + c + d))) * \
            np.exp(-a * b * r1 / (a + b) - c * d * r2 / (c + d))
 
+def kinetic_integral_matrix(*args: tuple) -> float:
+    ''' Kinetic energy integral between two contracted Gaussians for vectorized T-matrix
+
+    T_AB = ∫ φ_A(r) (-1/2 ∇^2) φ_B(r) dr
+
+    args:
+        a : float : exponent of the first gaussian
+        b : float : exponent of the second gaussian
+        r : float : interatomic distance
+
+    returns:
+        float : the kinetic energy integral
+    '''
+    
+
+    a, b, r, c, d = args
+    
+    integral = lambda a, b, r: (a * b / (a + b)) * (3 - 2 * a * b * r / (a + b)) * (np.pi / (a + b))**(3/2) * np.exp(-a * b * r / (a + b))
+
+    return np.sum([integral(a[i], b[j], r) * c[i] * d[j] for i in range(len(a)) for j in range(len(b))])
+
+def overlap_integral_matrix(*args: tuple) -> float:
+    ''' Overlap integral between two contracted Gaussians for vectorized S-matrix
+
+    S_AB = ∫ φ_A(r) φ_B(r) dr 
+
+    args:
+        a : float : exponent of the first gaussian
+        b : float : exponent of the second gaussian
+        r : float : interatomic distance
+
+    returns
+        float : the overlap integral
+    '''
+
+    a, b, r, c, d = args
+
+    integral = lambda a, b, r: np.exp(-(a * b * r / (a + b))) * (np.pi / (a + b))**(3/2)
+
+    return np.sum([integral(a[i], b[j], r) * c[i] * d[j] for i in range(len(a)) for j in range(len(b))])
+
+
+
 """
 def T_e(A,B,r):
     ''' Kinetic energy term defined as
